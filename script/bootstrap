@@ -23,7 +23,7 @@ print "\n";
 
 if (is_arch()) {
 	puts BOLD BLUE, "ARCH LINUX DETECTED.\n", RESET;
-	require linux::install;
+	require archlinux::install;
 }
 
 ### Wonderful Little Helpers
