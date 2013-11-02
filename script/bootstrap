@@ -1,0 +1,54 @@
+#!/usr/bin/env perl
+use strict;
+use Term::UI;
+use Term::ReadLine;
+use Term::ANSIColor qw(:constants);
+use Cwd;
+use File::Path qw(remove_tree);
+use File::Basename;
+
+$Term::ANSIColor::AUTORESET = 1;
+
+my $term = Term::ReadLine->new('brand');
+my $scriptroot = Cwd::abs_path(dirname(__FILE__) + "/..");
+
+print BOLD, "Ubercow's Dotfiles Linker.\n";
+print BOLD "Root: ", RESET "/home/ubercow/.uberdots/script\n";
+print "\n";
+
+
+
+
+### Wonderful Little Helpers
+# sym(src, dst)
+# This function takes a source and destionation. It prints out an error if there is
+# a file in the way and won't relink if the link is already in place.
+# Source is relative to the root of .uberdots
+sub sym {
+	my($src, $dst) = @_;
+	$src = $scriptroot . "/" . $src;
+	$dst = glob($dst);
+	if (-e $dst) {
+		if (-l $dst && (readlink($dst) eq $src)) {
+			print BOLD BLUE, "[ALREADY LINKED] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
+			return;
+		} else {
+			print BOLD RED, "[DESTINATION EXISTS] ", RESET, "Please remove ", BOLD $dst, RESET, " and rerun the script.\n";
+			return;
+		}
+	}
+	if (symlink($src, $dst)) {
+		print BOLD GREEN, "[LINK SUCCESS] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
+	} else {
+		print BOLD RED, "[LINK FAILURE] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
+	}
+}
+
+sub is_arch {
+	return ($^O eq "linux" && -e "/etc/arch-release") ? 1 : 0;
+}
+
+sub is_osx {
+	return ($^O eq "darwin") ? 1 : 0;
+}
+### End Wonderful Little Helpers
