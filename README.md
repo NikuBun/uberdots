@@ -1,4 +1,2 @@
-uberdots
-========
-
-Ubercow's Dotfiles.
+# Uberdots (Ubercow's Dotfiles)
+Hard Hat Zone. This is under construction!
