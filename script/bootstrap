@@ -12,7 +12,7 @@ $Term::ANSIColor::AUTORESET = 1;
 
 our $term = Term::ReadLine->new('brand');
 our $scriptroot = Cwd::abs_path(dirname(__FILE__) . "/..");
-our $homedir = File::HomeDir->my_home . "/testhome";
+our $homedir = File::HomeDir->my_home;
 
 
 unshift @INC, $scriptroot;
@@ -22,6 +22,7 @@ print BOLD "Root: ", RESET "$scriptroot\n";
 print "\n";
 
 if (is_arch()) {
+	puts BOLD BLUE, "ARCH LINUX DETECTED.\n", RESET;
 	require linux::install;
 }
 
@@ -30,9 +31,6 @@ if (is_arch()) {
 # This function takes a source and destionation. It prints out an error if there is
 # a file in the way and won't relink if the link is already in place.
 # Source is relative to the root of .uberdots
-sub scriptpath {
-	print $scriptroot . "\n";
-}
 sub sym {
 	my($src, $dst) = @_;
 	$src = $scriptroot . "/" . $src;
