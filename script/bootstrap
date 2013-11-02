@@ -6,28 +6,37 @@ use Term::ANSIColor qw(:constants);
 use Cwd;
 use File::Path qw(remove_tree);
 use File::Basename;
+use File::HomeDir;
 
 $Term::ANSIColor::AUTORESET = 1;
 
-my $term = Term::ReadLine->new('brand');
-my $scriptroot = Cwd::abs_path(dirname(__FILE__) + "/..");
+our $term = Term::ReadLine->new('brand');
+our $scriptroot = Cwd::abs_path(dirname(__FILE__) . "/..");
+our $homedir = File::HomeDir->my_home . "/testhome";
+
+
+unshift @INC, $scriptroot;
 
 print BOLD, "Ubercow's Dotfiles Linker.\n";
-print BOLD "Root: ", RESET "/home/ubercow/.uberdots/script\n";
+print BOLD "Root: ", RESET "$scriptroot\n";
 print "\n";
 
-
-
+if (is_arch()) {
+	require linux::install;
+}
 
 ### Wonderful Little Helpers
 # sym(src, dst)
 # This function takes a source and destionation. It prints out an error if there is
 # a file in the way and won't relink if the link is already in place.
 # Source is relative to the root of .uberdots
+sub scriptpath {
+	print $scriptroot . "\n";
+}
 sub sym {
 	my($src, $dst) = @_;
 	$src = $scriptroot . "/" . $src;
-	$dst = glob($dst);
+	$dst = $homedir . "/" . $dst;
 	if (-e $dst) {
 		if (-l $dst && (readlink($dst) eq $src)) {
 			print BOLD BLUE, "[ALREADY LINKED] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
