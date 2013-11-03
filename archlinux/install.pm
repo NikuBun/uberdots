@@ -6,11 +6,11 @@ print BLUE, "Checking directory existance, creating non-existing.\n", RESET;
 make_path($homedir . "/.config", {verbose => 1});
 
 # Symbolic Links
-sym("linux/awesome",    ".config/awesome");
-sym("linux/fontconfig", ".config/fontconfig");
-sym("linux/lilyterm",   ".config/lilyterm");
-sym("linux/gtk-3.0",    ".config/gtk-3.0");
-sym("linux/fonts",      ".fonts");
+sym("archlinux/awesome",    ".config/awesome");
+sym("archlinux/fontconfig", ".config/fontconfig");
+sym("archlinux/lilyterm",   ".config/lilyterm");
+sym("archlinux/gtk-3.0",    ".config/gtk-3.0");
+sym("archlinux/fonts",      ".fonts");
 
 print YELLOW, "To ensure the full experience, please install the following packages:\n", RESET;
 print "Pacman: cantarell-fonts\n";
