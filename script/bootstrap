@@ -19,6 +19,7 @@ unshift @INC, $scriptroot;
 
 print BOLD, "Ubercow's Dotfiles Linker.\n";
 print BOLD "Root: ", RESET "$scriptroot\n";
+print BOLD "Homedir: ", RESET "$homedir\n";
 print "\n";
 
 if (is_arch()) {
