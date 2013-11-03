@@ -4,7 +4,7 @@ print BOLD BLUE, "Common config for Arch Linux including awesomewm, fontconfig a
 
 # Create .config if it doesn't exist
 print BLUE, "Checking directory existance, creating non-existing.\n", RESET;
-make_path($homedir . "/.config/fuckyou", {verbose => 1});
+make_path($homedir . "/.config", {verbose => 1});
 
 # Symbolic Links
 sym("linux/awesome",    ".config/awesome");
