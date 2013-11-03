@@ -22,9 +22,10 @@ print BOLD "Root: ", RESET "$scriptroot\n";
 print "\n";
 
 if (is_arch()) {
-	puts BOLD BLUE, "ARCH LINUX DETECTED.\n", RESET;
 	require archlinux::install;
 }
+
+require global::install;
 
 ### Wonderful Little Helpers
 # sym(src, dst)
