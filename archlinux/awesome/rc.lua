@@ -571,6 +571,8 @@ awful.rules.rules = {
     buttons = clientbuttons } },
     { rule = { class = "gimp" },
     properties = { floating = true } },
+    { rule = { class = "Plugin-container" },
+    properties = { floating = true } },
 }
 
 --{{---| Signals |----------------------------------------------------------------------------------
