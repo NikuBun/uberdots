@@ -6,14 +6,12 @@ use Term::ANSIColor qw(:constants);
 use Cwd;
 use File::Path qw(remove_tree);
 use File::Basename;
-use File::HomeDir;
 
 $Term::ANSIColor::AUTORESET = 1;
 
 our $term = Term::ReadLine->new('brand');
 our $scriptroot = Cwd::abs_path(dirname(__FILE__) . "/..");
-our $homedir = File::HomeDir->my_home;
-
+our $homedir = glob("~");
 
 unshift @INC, $scriptroot;
 
@@ -22,11 +20,17 @@ print BOLD "Root: ", RESET "$scriptroot\n";
 print BOLD "Homedir: ", RESET "$homedir\n";
 print "\n";
 
+# Many things depend on submodules being up to date.
+# Unless you really know what you're doing, let the submodules update.
+header("Git", "Updating Submodules.");
+update_submodules();
+print "\n\n";
+
 if (is_arch()) {
 	require archlinux::install;
 }
-
 require global::install;
+require zsh::install;
 
 ### Wonderful Little Helpers
 # sym(src, dst)
@@ -37,19 +41,29 @@ sub sym {
 	my($src, $dst) = @_;
 	$src = $scriptroot . "/" . $src;
 	$dst = $homedir . "/" . $dst;
+	sym_any($src, $dst)
+}
+
+sub header {
+	my($name, $desc) = @_;
+	print YELLOW, "[$name]: ", RESET UNDERLINE, $desc, "\n";
+}
+
+sub sym_any {
+	my($src, $dst) = @_;
 	if (-e $dst) {
 		if (-l $dst && (readlink($dst) eq $src)) {
-			print BOLD BLUE, "[ALREADY LINKED] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
+			print BLUE, "[ALREADY LINKED] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
 			return;
 		} else {
-			print BOLD RED, "[DESTINATION EXISTS] ", RESET, "Please remove ", BOLD $dst, RESET, " and rerun the script.\n";
+			print RED, "[DESTINATION EXISTS] ", RESET, "Please remove ", BOLD $dst, RESET, " and rerun the script.\n";
 			return;
 		}
 	}
 	if (symlink($src, $dst)) {
-		print BOLD GREEN, "[LINK SUCCESS] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
+		print GREEN, "[LINK SUCCESS] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
 	} else {
-		print BOLD RED, "[LINK FAILURE] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
+		print RED, "[LINK FAILURE] ", RESET BOLD $dst, RESET, " => ", BOLD $src, "\n";
 	}
 }
 
@@ -59,5 +73,12 @@ sub is_arch {
 
 sub is_osx {
 	return ($^O eq "darwin") ? 1 : 0;
+}
+
+sub update_submodules {
+	my $originaldir = getcwd();
+	chdir($scriptroot);
+	system("git submodule update --init --recursive");
+	chdir($originaldir);
 }
 ### End Wonderful Little Helpers
