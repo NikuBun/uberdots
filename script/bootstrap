@@ -11,7 +11,11 @@ $Term::ANSIColor::AUTORESET = 1;
 
 our $term = Term::ReadLine->new('brand');
 our $scriptroot = Cwd::abs_path(dirname(__FILE__) . "/..");
-our $homedir = $ENV{'DEBUG_ROOT'} or glob("~");
+our $homedir = glob("~");
+
+if (defined $ENV{'DEBUG_ROOT'}) {
+	$homedir = $ENV{'DEBUG_ROOT'};
+} 
 
 print $scriptroot;
 
