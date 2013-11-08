@@ -1,0 +1,80 @@
+#!/usr/bin/env ruby
+
+unless RUBY_VERSION > "1.9.0"
+	puts "You must be at least 1.9.0 tall to ride this ride"
+	exit 1
+end
+
+
+require 'rubygems'
+require 'rmagick'
+require 'optparse'
+require 'ostruct'
+
+require 'pp'
+
+
+class Options
+	FLIPS = [:vleft, :vright, :hup, :hdown]
+	def self.parse(args)
+		options = OpenStruct.new
+		options.flip = :vleft
+		options.srcimg = nil
+		options.dstimg = nil
+
+		opts = OptionParser.new do |opts|
+			opts.banner = "Usage: haahwaaw [options] srcimg dstimg"
+			opts.on("--flip DIRECTION", FLIPS, "Direction to flip (vleft, vright, hleft, hright)") do |f|
+				options.flip = f
+			end
+
+			opts.on_tail("-h", "--help", "Show this message") do
+				puts opts
+				exit
+			end
+		end
+
+		opts.parse!(args)
+		options.srcimg = args.shift
+		options.dstimg = args.shift
+
+		if options.srcimg.nil? or options.dstimg.nil?
+			puts opts
+			exit 1
+		end
+
+		options
+	end
+end
+
+options = Options.parse(ARGV)
+
+img = Magick::Image.read(options.srcimg)[0]
+new_img = Magick::Image.new(img.columns, img.rows)
+
+
+case options.flip
+when :vleft
+	left_half = img.crop(0, 0, img.columns / 2, img.rows)
+	right_half = left_half.flop
+	new_img.composite!(left_half, 0, 0, Magick::OverCompositeOp)
+	new_img.composite!(right_half, left_half.columns, 0, Magick::OverCompositeOp)
+when :vright
+	right_half = img.crop(img.columns / 2, 0, img.columns / 2, img.rows)
+	left_half = right_half.flop
+	new_img.composite!(left_half, 0, 0, Magick::OverCompositeOp)
+	new_img.composite!(right_half, left_half.columns, 0, Magick::OverCompositeOp)
+when :hup
+	top_half = img.crop(0, 0, img.columns, img.rows / 2)
+	bot_half = top_half.flip
+	new_img.composite!(top_half, 0, 0, Magick::OverCompositeOp)
+	new_img.composite!(bot_half, 0, top_half.rows, Magick::OverCompositeOp)
+when :hdown
+	bot_half = img.crop(0, img.rows / 2, 0, img.rows)
+	top_half = bot_half.flip
+	new_img.composite!(top_half, 0, 0, Magick::OverCompositeOp)
+	new_img.composite!(bot_half, 0, top_half.rows, Magick::OverCompositeOp)
+end
+
+
+new_img.write(options.dstimg)

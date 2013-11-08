@@ -17,8 +17,6 @@ if (defined $ENV{'DEBUG_ROOT'}) {
 	$homedir = $ENV{'DEBUG_ROOT'};
 } 
 
-print $scriptroot;
-
 unshift @INC, $scriptroot;
 
 print BOLD, "Ubercow's Dotfiles Linker.\n";

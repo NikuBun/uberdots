@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'rack'
+
+staticshock = Rack::Builder.new do
+	dir = (ARGV[0].to_s.empty? ? Dir.pwd : ARGV[0])
+	puts ">> Super Hero Static Shock (#{dir})"
+	run Rack::Directory.new(dir)
+end
+
+
+Rack::Handler::Thin.run(staticshock)
