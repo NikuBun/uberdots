@@ -35,6 +35,7 @@ if (is_arch()) {
 }
 require global::install;
 require zsh::install;
+require vim::install;
 
 ### Wonderful Little Helpers
 # sym(src, dst)
