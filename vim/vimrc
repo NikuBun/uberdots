@@ -19,6 +19,11 @@ set gcr=a:blinkon0              "Disable cursor blink
 set visualbell                  "No sounds
 set autoread                    "Reload files changed outside vim
 
+
+" Moved this so Vundle doesn't complain, since it's loaded before other files
+let g:session_autosave = 'no'
+let g:session_autoload = 'no'
+
 " This makes vim act like all other editors, buffers can
 " exist in the background without being in a window.
 " http://items.sjbach.com/319/configuring-vim-right

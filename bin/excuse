@@ -1,0 +1,2 @@
+#!/bin/bash
+nc bofh.jeffballard.us 666 | sed '/^===/d' | sed 's/Your excuse is: //g'
