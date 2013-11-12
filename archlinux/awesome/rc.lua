@@ -50,19 +50,8 @@ config_dir = ("/home/ubercow/.config/awesome")
 themes_dir = (config_dir .. "/themes")
 beautiful.init(themes_dir .. "/powerarrow/theme.lua")
 
-wallpaper_folder = "wallpaper_ao"
-wallpaper_ext = "png"
-wallpapers =
-{
-  (config_dir .. "/" .. wallpaper_folder .. "/2." .. wallpaper_ext),
-  (config_dir .. "/" .. wallpaper_folder .. "/3." .. wallpaper_ext),
-  (config_dir .. "/" .. wallpaper_folder .. "/1." .. wallpaper_ext),
-  (config_dir .. "/" .. wallpaper_folder .. "/4." .. wallpaper_ext)
-}
-
-for s = 1, screen.count() do
-  wall = wallpapers[s] or wallpapers[1]
-  gears.wallpaper.maximized(wall, s, true)
+if awful.util.checkfile(config_dir .. "/wallpaper.lua") then
+  require("wallpaper")
 end
 
 
@@ -589,8 +578,9 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 
 --{{---| run_once |---------------------------------------------------------------------------------
 --
---function run_once(prg)
---  awful.util.spawn_with_shell("pgrep -u $USER -x " .. prg .. " || (" .. prg .. ")") end
+function run_once(prg)
+  awful.util.spawn_with_shell("pgrep -u $USER -x " .. prg .. " || (" .. prg .. ")")
+end
 --
 ----{{---| run_once with args |-----------------------------------------------------------------------
 --
@@ -610,4 +600,5 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 --{{Xx----------------------------------------------------------------------------------------------
 
 
+run_once("CopyAgent")
 awful.util.spawn_with_shell("mpd")
