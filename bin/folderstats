@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+if ARGV.length == 0
+	puts "Usage: #{File.basename($0)} [directories]"
+end
+
+class Numeric
+  def to_human
+    units = %w{B KB MB GB TB}
+    e = (Math.log(self)/Math.log(1024)).floor
+    s = "%.3f" % (to_f / 1024**e)
+    s.sub(/\.?0*$/, units[e])
+  end
+end
+
+directories = {}
+ARGV.each do |arg|
+	unless File.directory?(arg)
+		arg = File.dirname(arg)
+	end
+	files = Dir.glob("#{arg}/**/*").select { |file| File.file?(file) }
+	directories[arg] ||= []
+	directories[arg].push(*files)
+end
+
+
+directories.each_pair do |dirname,files|
+	total_size = 0
+	extensions = {}
+
+	files.each do |file|
+		size = File.size(file)
+		total_size += size
+
+		extname = File.extname(file)
+
+		if extname.empty?
+			extname = "none"
+		end
+		
+		extensions[extname] ||= {}
+		extensions[extname][:size] ||= 0
+		extensions[extname][:count] ||= 0
+
+		extensions[extname][:count] += 1
+		extensions[extname][:size] += size
+	end
+	
+	puts "Statistics for Directory: #{dirname}"
+	puts "Total Size: #{total_size.to_human}"
+	puts "Total Files: #{files.length}"
+	puts
+
+	max_extension_string = extensions.keys.group_by(&:size).max.first
+	max_count_string = extensions.group_by { |k,v| v[:count] }.max.first.to_s.size
+
+	extensions.keys.sort { |a,b| extensions[b][:size] <=> extensions[a][:size] }.each do |ext|
+		stats = extensions[ext]
+		puts "#{ext.rjust(max_extension_string)}: #{stats[:count].to_s.ljust(max_count_string)} (#{stats[:size].to_human})"
+	end
+end
