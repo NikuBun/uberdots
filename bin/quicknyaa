@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+require 'nokogiri'
+require 'open-uri'
+require 'cgi'
+
+unless ARGV.length > 0
+	puts "Searches nyaa.se and returns a list of torrents from the first page of results"
+	puts "Usage: #{$0} [search terms]"
+	exit 1
+end
+
+searchstr = CGI::escape(ARGV.map { |x| x.gsub(/\s{2,}/, " ").split(" ") }.flatten.join("+"))
+
+$stderr.puts "Search Terms: #{searchstr}"
+doc = Nokogiri::HTML(open("http://www.nyaa.se/?page=search&cats=0_0&filter=0&term=#{searchstr}"))
+doc.css("tr.tlistrow").each do |row|
+	name = row.css(".tlistname a")[0].text
+	url = row.css(".tlistdownload a")[0].attributes["href"].value
+	puts "#" + name
+	puts url
+end
