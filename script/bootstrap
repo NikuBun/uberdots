@@ -6,12 +6,15 @@ use Term::ANSIColor qw(:constants);
 use Cwd;
 use File::Path qw(remove_tree);
 use File::Basename;
+use Config;
 
 $Term::ANSIColor::AUTORESET = 1;
 
 our $term = Term::ReadLine->new('brand');
 our $scriptroot = Cwd::abs_path(dirname(__FILE__) . "/..");
 our $homedir = glob("~");
+my @archlist = split("-", $Config{archname});
+our $arch = @archlist[0];
 
 if (defined $ENV{'DEBUG_ROOT'}) {
 	$homedir = $ENV{'DEBUG_ROOT'};
@@ -22,6 +25,7 @@ unshift @INC, $scriptroot;
 print BOLD, "Ubercow's Dotfiles Linker.\n";
 print BOLD "Root: ", RESET "$scriptroot\n";
 print BOLD "Homedir: ", RESET "$homedir\n";
+print BOLD "Arch: ", RESET "$arch\n";
 print "\n";
 
 # Many things depend on submodules being up to date.
@@ -35,7 +39,10 @@ if (is_arch()) {
 }
 require global::install;
 require zsh::install;
-require vim::install;
+# don't install super vim on rPi armv61
+if ($arch ne "armv6l") {
+	require vim::install;
+}
 
 ### Wonderful Little Helpers
 # sym(src, dst)
