@@ -2,7 +2,9 @@
 
 " http://ethanschoonover.com/solarized/vim-colors-solarized
 set background=dark
-colorscheme solarized
+
+" Set to jellybeans by default so it doesn't look like shit when you don't have solarized installed.
+colorscheme jellybeans
 
 if has("gui_running")
   "tell the term has 256 colors
