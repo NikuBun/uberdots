@@ -14,11 +14,11 @@ our $term = Term::ReadLine->new('brand');
 our $scriptroot = Cwd::abs_path(dirname(__FILE__) . "/..");
 our $homedir = glob("~");
 my @archlist = split("-", $Config{archname});
-our $arch = @archlist[0];
+our $arch = $archlist[0];
 
 if (defined $ENV{'DEBUG_ROOT'}) {
 	$homedir = $ENV{'DEBUG_ROOT'};
-} 
+}
 
 unshift @INC, $scriptroot;
 
