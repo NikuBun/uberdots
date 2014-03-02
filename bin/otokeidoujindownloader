@@ -1,0 +1,32 @@
+require 'nokogiri'
+require 'open-uri'
+
+SITE_BASE = "http://otokei-douj.in/"
+
+def parse_playlist(url)
+	array = []
+	page = Nokogiri::HTML(open(url))
+
+	page.css(".playlist li").each do |li|
+		li.css("a").each do |item|
+			link = item.attributes["href"].value
+			if link =~ /^\?link/
+				sublinks = parse_playlist("#{SITE_BASE}#{link}")
+				array.push(*sublinks)
+			end
+		end
+	end
+
+	downloadlink = page.css("a[rel=nofollow]")
+	if not downloadlink[0].nil?
+		url = downloadlink[0].attributes["href"].value
+		array.push("#{SITE_BASE}#{url}")
+	end
+
+	array
+end
+
+links = parse_playlist(ARGV.first)
+links.each do |link|
+	puts link
+end
