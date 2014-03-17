@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+require 'net/dns'
+
+
+#### DEFINE SOME HELPERS
+# Takes two arrays, returns two arrays
+# array 1 is removed elements
+# array 2 is new elements
+# a1 and a2 MUST respond to <=>
+def array_diff(a1, a2)
+  a1 ||= []
+  a2 ||= []
+  removed = a1 - a2
+  added = a2 - a1
+
+  [removed, added]
+end
+
+def time
+  Time.new.strftime("%m/%d %T")
+end
+#### End Helpers
+
+unless ARGV[0]
+  puts "Usage: #{File.basename($0)} [hostname] (time)"
+  puts "Query nameserver every 5 seconds (by default) and print out A record changes"
+  exit 1
+end
+
+# todo: nameserver selection
+query = Net::DNS::Resolver.new
+
+domain_name = ARGV[0]
+looptime = ARGV[1].to_i
+looptime = (looptime <= 0 ? 5 : looptime)
+puts "Ubercow's DNS Checker"
+puts "Nameservers: #{query.nameservers.join(", ")}"
+puts "Querying #{domain_name} every #{looptime} seconds"
+
+# note: tired code incoming
+last_addresses = nil
+loop do
+  # todo: allow different DNS requests (MX, NS)
+  response = query.query(domain_name, Net::DNS::A)
+
+  current_addresses = response.answer.map { |x| x.address.to_s }.sort
+
+  puts "[#{time}]: #{current_addresses.join(", ")}"
+
+  removed, added = array_diff(last_addresses, current_addresses)
+  if last_addresses and (not removed.empty? or not added.empty?)
+    print "\a"
+    puts "    Added: #{added.join(", ")}"
+    puts "  Removed: #{removed.join(", ")}"
+  end
+
+  last_addresses = current_addresses
+  sleep(looptime)
+end
