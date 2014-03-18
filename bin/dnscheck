@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'net/dns'
-
+require 'rainbow/ext/string'
 
 #### DEFINE SOME HELPERS
 # Takes two arrays, returns two arrays
@@ -45,13 +45,14 @@ loop do
 
   current_addresses = response.answer.map { |x| x.address.to_s }.sort
 
-  puts "[#{time}]: #{current_addresses.join(", ")}"
+  print "[#{time}]: ".bright
+  puts "#{current_addresses.join(", ")}"
 
   removed, added = array_diff(last_addresses, current_addresses)
   if last_addresses and (not removed.empty? or not added.empty?)
     print "\a"
-    puts "    Added: #{added.join(", ")}"
-    puts "  Removed: #{removed.join(", ")}"
+    puts "               +: #{added.join(", ")}".color(:green)
+    puts "               -: #{removed.join(", ")}".color(:red)
   end
 
   last_addresses = current_addresses
