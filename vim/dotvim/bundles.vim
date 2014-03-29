@@ -1,5 +1,14 @@
 NeoBundleFetch 'Shougo/neobundle.vim'
 
+" Unite!
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/unite-outline'
+NeoBundle 'Shougo/unite-help'
+NeoBundle 'Shougo/unite-session'
+NeoBundle 'Shougo/neomru.vim'
+NeoBundle 'thinca/vim-unite-history'
+NeoBundle 'mileszs/ack.vim'
+
 " Code Completion
 " Shougo/neocomplcache.vim
 NeoBundle 'Valloric/YouCompleteMe'
@@ -9,7 +18,7 @@ NeoBundle 'tpope/vim-endwise'
 NeoBundle 'nanotech/jellybeans.vim'
 NeoBundle 'majutsushi/tagbar'
 NeoBundle 'bling/vim-airline'
-"NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'scrooloose/nerdtree'
 NeoBundle 'shougo/vimfiler.vim'
 NeoBundle 'scrooloose/syntastic'
 NeoBundle 'kshenoy/vim-signature'
