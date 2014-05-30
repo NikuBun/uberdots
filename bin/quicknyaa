@@ -1,34 +1,74 @@
 #!/usr/bin/env ruby
 require 'nokogiri'
 require 'open-uri'
+require 'optparse'
 
-unless ARGV.length > 0
-  puts "Searches nyaa.se and returns a list of torrents from the first page of results"
-  puts "Usage: #{$0} [search terms]"
+EPISODE_NUMBER = /( |_)(\d+)(v\d+)?( |_)/
+
+options = {}
+opts = OptionParser.new do |o|
+  o.banner = "Usage: #{$0} [options] [searchterms]"
+
+  o.separator "Searches nyaa.se and returns a list of torrents from the first page of results"
+
+  o.on('--titles', 'Also prints the titles, prefixed by a #, to stdout') do |t|
+    options[:titles] = true
+  end
+
+  CATEGORY_OPTIONS = {"all"=>"0_0", "anime"=>"1_0", "anime-amv"=>"1_32", "anime-english"=>"1_37", "anime-non-english"=>"1_38", "anime-raw"=>"1_11", "audio"=>"3_0", "audio-lossless"=>"3_14", "audio-lossy"=>"3_15", "literature"=>"2_0", "literature-english"=>"2_12", "literature-non-english"=>"2_39", "literature-raw"=>"2_13", "liveaction"=>"5_0", "liveaction-english"=>"5_19", "liveaction-pv"=>"5_22", "liveaction-non-english"=>"5_21", "liveaction:-raw"=>"5_20", "pictures"=>"4_0", "pictures-graphics"=>"4_18"}
+  o.on('--category TYPE', CATEGORY_OPTIONS, 'Categorize by: ' + CATEGORY_OPTIONS.keys.join(', ')) do |g|
+    options[:category] = g
+  end
+
+  FILTER_OPTIONS = [:all, :noremakes, :trusted, :aplus]
+  o.on('--filter TYPE', FILTER_OPTIONS, 'Filter to: all, noremakes, trusted or aplus') do |f|
+    options[:filter] = FILTER_OPTIONS.index(f)
+  end
+
+  o.on('--episodes EPS', 'A single episode, range or comma seperated list of episodes to search on') do |e|
+    case e
+    when /(\d+)-(\d+)/
+      options[:episodes] = ($1..$2).to_a.map(&:to_i)
+    when /(\d|,)+/
+      options[:episodes] = e.split(',').map(&:to_i)
+    when /\d+/
+      options[:episodes] = [e.to_i]
+    else
+      $stderr.puts "You must specify a range of episodes (ex: 1-5), a single episode (ex: 5), or a comma seperated list of episodes (ex: 1,2,3,6)"
+      exit 1
+    end
+  end
+
+  o.on('-h', '--help') do |h|
+    puts o
+    exit
+  end
+end
+
+begin opts.parse!(ARGV)
+rescue OptionParser::InvalidArgument=>e
+  puts e
+  puts opts
   exit 1
 end
 
-titles = ARGV.delete("--titles")
-nojunk = ARGV.delete("--nojunk")
-trustedonly = ARGV.delete("--trustedonly")
-
-searchterms = ARGV.map { |x| x.gsub(/\s{2,}/, " ").split(" ") }.flatten
-
-if nojunk
-  searchterms.push('-batch', '-pv', '-cm')
-end
-
-filter = trustedonly ? 2 : 0
-
-searchstr = searchterms.join('+')
+searchstr = ARGV.map { |x| x.gsub(/\s{2,}/, " ").split(" ") }.flatten.join('+')
 
 $stderr.puts "Search Terms: #{searchstr}"
-doc = Nokogiri::HTML(open("http://www.nyaa.se/?page=search&cats=0_0&filter=#{filter}&term=#{searchstr}"))
+doc = Nokogiri::HTML(open("http://www.nyaa.se/?page=search&cats=#{options[:category]}&filter=#{options[:filter]}&term=#{searchstr}"))
 doc.css("tr.tlistrow").each do |row|
   name = row.css(".tlistname a")[0].text
   url = row.css(".tlistdownload a")[0].attributes["href"].value
-  if titles
+
+  if options[:episodes]
+    match = EPISODE_NUMBER.match(name)
+    unless match && options[:episodes].include?(match[2].to_i)
+      next
+    end
+  end
+
+  if options[:titles]
     puts "#" + name
   end
-    puts url
+  puts url
 end
